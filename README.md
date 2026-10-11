@@ -1,1681 +1,309 @@
+# World Bank Real-Time Food Prices: Bronze / Silver Pipeline
 
-### bronze.world_bank_food_prices
+Databricks (PySpark + Delta Lake) pipeline that loads the World Bank Real-Time Food Prices dataset into a **Bronze** table (raw strings) and a **Silver** table (typed, validated, de-duplicated).
+Catalog `workspace`; schemas `bronze`, `silver`, `rejects`, `audit`.
 
-| Column | Data type | Primary key |
-|---|---|---|
-| ISO3 | string |  |
-| country | string |  |
-| adm1_name | string |  |
-| adm2_name | string |  |
-| mkt_name | string |  |
-| lat | string |  |
-| lon | string |  |
-| geo_id | string |  |
-| price_date | string |  |
-| year | string |  |
-| month | string |  |
-| currency | string |  |
-| components | string |  |
-| start_dense_data | string |  |
-| last_survey_point | string |  |
-| data_coverage | string |  |
-| data_coverage_recent | string |  |
-| index_confidence_score | string |  |
-| spatially_interpolated | string |  |
-| apples | string |  |
-| bananas | string |  |
-| beans | string |  |
-| beans_fao | string |  |
-| bread | string |  |
-| bread_fao | string |  |
-| butter | string |  |
-| cabbage | string |  |
-| carrots | string |  |
-| cassava | string |  |
-| cassava_fao | string |  |
-| cassava_flour | string |  |
-| cassava_flour_fao | string |  |
-| cassava_leaves | string |  |
-| cassava_meal | string |  |
-| cheese | string |  |
-| chickpeas | string |  |
-| chili | string |  |
-| cocoa | string |  |
-| cocoyam_fao | string |  |
-| coffee_instant | string |  |
-| couscous | string |  |
-| couscous_fao | string |  |
-| cowpeas | string |  |
-| cucumbers | string |  |
-| dates | string |  |
-| eggplants | string |  |
-| eggs | string |  |
-| fish | string |  |
-| fish_barbel_sole | string |  |
-| fish_catfish | string |  |
-| fish_goldstripe_sardinella | string |  |
-| fish_mackerel | string |  |
-| fish_mullet_catfish | string |  |
-| fish_salted | string |  |
-| fish_sardine_canned | string |  |
-| fish_smoked | string |  |
-| fish_tilapia | string |  |
-| fish_tuna_canned | string |  |
-| fonio | string |  |
-| gari_fao | string |  |
-| garlic | string |  |
-| groundnuts | string |  |
-| groundnuts_paste | string |  |
-| honey | string |  |
-| lemons | string |  |
-| lentils | string |  |
-| lettuce | string |  |
-| livestock_camel_fao | string |  |
-| livestock_goat | string |  |
-| livestock_goat_fao | string |  |
-| livestock_goat_s_fao | string |  |
-| livestock_sheep | string |  |
-| livestockgoat_castrated_male | string |  |
-| livestockgoat_male | string |  |
-| livestocksheep_castrated_male | string |  |
-| livestocksheep_male | string |  |
-| maize | string |  |
-| maize_fao | string |  |
-| maize_flour | string |  |
-| maize_meal | string |  |
-| mangoes | string |  |
-| meat_beef | string |  |
-| meat_beef_canned | string |  |
-| meat_beef_fao | string |  |
-| meat_buffalo | string |  |
-| meat_camel_fao | string |  |
-| meat_chicken | string |  |
-| meat_chicken_broiler | string |  |
-| meat_goat | string |  |
-| meat_lamb | string |  |
-| meat_pork | string |  |
-| meat_sheep | string |  |
-| milk | string |  |
-| milk_fao | string |  |
-| millet | string |  |
-| millet_fao | string |  |
-| millet_flour | string |  |
-| oil | string |  |
-| oil_fao | string |  |
-| okra | string |  |
-| onions | string |  |
-| onions_fao | string |  |
-| oranges | string |  |
-| pasta | string |  |
-| peppers | string |  |
-| plantains | string |  |
-| plantains_fao | string |  |
-| potatoes | string |  |
-| potatoes_fao | string |  |
-| pulses | string |  |
-| pumpkin | string |  |
-| rice | string |  |
-| rice_fao | string |  |
-| rice_various | string |  |
-| salt | string |  |
-| sesame | string |  |
-| shrimps | string |  |
-| sorghum | string |  |
-| sorghum_fao | string |  |
-| sorghum_food_aid | string |  |
-| sugar | string |  |
-| tea | string |  |
-| teff_fao | string |  |
-| tomatoes | string |  |
-| tomatoes_fao | string |  |
-| tomatoes_paste | string |  |
-| watermelons | string |  |
-| wheat | string |  |
-| wheat_fao | string |  |
-| wheat_flour | string |  |
-| wheat_flour_fao | string |  |
-| wheat_flour_low_price_fao | string |  |
-| yam | string |  |
-| yogurt | string |  |
-| o_apples | string |  |
-| h_apples | string |  |
-| l_apples | string |  |
-| c_apples | string |  |
-| inflation_apples | string |  |
-| trust_apples | string |  |
-| o_bananas | string |  |
-| h_bananas | string |  |
-| l_bananas | string |  |
-| c_bananas | string |  |
-| inflation_bananas | string |  |
-| trust_bananas | string |  |
-| o_beans | string |  |
-| h_beans | string |  |
-| l_beans | string |  |
-| c_beans | string |  |
-| inflation_beans | string |  |
-| trust_beans | string |  |
-| o_beans_fao | string |  |
-| h_beans_fao | string |  |
-| l_beans_fao | string |  |
-| c_beans_fao | string |  |
-| inflation_beans_fao | string |  |
-| trust_beans_fao | string |  |
-| o_bread | string |  |
-| h_bread | string |  |
-| l_bread | string |  |
-| c_bread | string |  |
-| inflation_bread | string |  |
-| trust_bread | string |  |
-| o_bread_fao | string |  |
-| h_bread_fao | string |  |
-| l_bread_fao | string |  |
-| c_bread_fao | string |  |
-| inflation_bread_fao | string |  |
-| trust_bread_fao | string |  |
-| o_butter | string |  |
-| h_butter | string |  |
-| l_butter | string |  |
-| c_butter | string |  |
-| inflation_butter | string |  |
-| trust_butter | string |  |
-| o_cabbage | string |  |
-| h_cabbage | string |  |
-| l_cabbage | string |  |
-| c_cabbage | string |  |
-| inflation_cabbage | string |  |
-| trust_cabbage | string |  |
-| o_carrots | string |  |
-| h_carrots | string |  |
-| l_carrots | string |  |
-| c_carrots | string |  |
-| inflation_carrots | string |  |
-| trust_carrots | string |  |
-| o_cassava | string |  |
-| h_cassava | string |  |
-| l_cassava | string |  |
-| c_cassava | string |  |
-| inflation_cassava | string |  |
-| trust_cassava | string |  |
-| o_cassava_fao | string |  |
-| h_cassava_fao | string |  |
-| l_cassava_fao | string |  |
-| c_cassava_fao | string |  |
-| inflation_cassava_fao | string |  |
-| trust_cassava_fao | string |  |
-| o_cassava_flour | string |  |
-| h_cassava_flour | string |  |
-| l_cassava_flour | string |  |
-| c_cassava_flour | string |  |
-| inflation_cassava_flour | string |  |
-| trust_cassava_flour | string |  |
-| o_cassava_flour_fao | string |  |
-| h_cassava_flour_fao | string |  |
-| l_cassava_flour_fao | string |  |
-| c_cassava_flour_fao | string |  |
-| inflation_cassava_flour_fao | string |  |
-| trust_cassava_flour_fao | string |  |
-| o_cassava_leaves | string |  |
-| h_cassava_leaves | string |  |
-| l_cassava_leaves | string |  |
-| c_cassava_leaves | string |  |
-| inflation_cassava_leaves | string |  |
-| trust_cassava_leaves | string |  |
-| o_cassava_meal | string |  |
-| h_cassava_meal | string |  |
-| l_cassava_meal | string |  |
-| c_cassava_meal | string |  |
-| inflation_cassava_meal | string |  |
-| trust_cassava_meal | string |  |
-| o_cheese | string |  |
-| h_cheese | string |  |
-| l_cheese | string |  |
-| c_cheese | string |  |
-| inflation_cheese | string |  |
-| trust_cheese | string |  |
-| o_chickpeas | string |  |
-| h_chickpeas | string |  |
-| l_chickpeas | string |  |
-| c_chickpeas | string |  |
-| inflation_chickpeas | string |  |
-| trust_chickpeas | string |  |
-| o_chili | string |  |
-| h_chili | string |  |
-| l_chili | string |  |
-| c_chili | string |  |
-| inflation_chili | string |  |
-| trust_chili | string |  |
-| o_cocoa | string |  |
-| h_cocoa | string |  |
-| l_cocoa | string |  |
-| c_cocoa | string |  |
-| inflation_cocoa | string |  |
-| trust_cocoa | string |  |
-| o_cocoyam_fao | string |  |
-| h_cocoyam_fao | string |  |
-| l_cocoyam_fao | string |  |
-| c_cocoyam_fao | string |  |
-| inflation_cocoyam_fao | string |  |
-| trust_cocoyam_fao | string |  |
-| o_coffee_instant | string |  |
-| h_coffee_instant | string |  |
-| l_coffee_instant | string |  |
-| c_coffee_instant | string |  |
-| inflation_coffee_instant | string |  |
-| trust_coffee_instant | string |  |
-| o_couscous | string |  |
-| h_couscous | string |  |
-| l_couscous | string |  |
-| c_couscous | string |  |
-| inflation_couscous | string |  |
-| trust_couscous | string |  |
-| o_couscous_fao | string |  |
-| h_couscous_fao | string |  |
-| l_couscous_fao | string |  |
-| c_couscous_fao | string |  |
-| inflation_couscous_fao | string |  |
-| trust_couscous_fao | string |  |
-| o_cowpeas | string |  |
-| h_cowpeas | string |  |
-| l_cowpeas | string |  |
-| c_cowpeas | string |  |
-| inflation_cowpeas | string |  |
-| trust_cowpeas | string |  |
-| o_cucumbers | string |  |
-| h_cucumbers | string |  |
-| l_cucumbers | string |  |
-| c_cucumbers | string |  |
-| inflation_cucumbers | string |  |
-| trust_cucumbers | string |  |
-| o_dates | string |  |
-| h_dates | string |  |
-| l_dates | string |  |
-| c_dates | string |  |
-| inflation_dates | string |  |
-| trust_dates | string |  |
-| o_eggplants | string |  |
-| h_eggplants | string |  |
-| l_eggplants | string |  |
-| c_eggplants | string |  |
-| inflation_eggplants | string |  |
-| trust_eggplants | string |  |
-| o_eggs | string |  |
-| h_eggs | string |  |
-| l_eggs | string |  |
-| c_eggs | string |  |
-| inflation_eggs | string |  |
-| trust_eggs | string |  |
-| o_fish | string |  |
-| h_fish | string |  |
-| l_fish | string |  |
-| c_fish | string |  |
-| inflation_fish | string |  |
-| trust_fish | string |  |
-| o_fish_barbel_sole | string |  |
-| h_fish_barbel_sole | string |  |
-| l_fish_barbel_sole | string |  |
-| c_fish_barbel_sole | string |  |
-| inflation_fish_barbel_sole | string |  |
-| trust_fish_barbel_sole | string |  |
-| o_fish_catfish | string |  |
-| h_fish_catfish | string |  |
-| l_fish_catfish | string |  |
-| c_fish_catfish | string |  |
-| inflation_fish_catfish | string |  |
-| trust_fish_catfish | string |  |
-| o_fish_goldstripe_sardinella | string |  |
-| h_fish_goldstripe_sardinella | string |  |
-| l_fish_goldstripe_sardinella | string |  |
-| c_fish_goldstripe_sardinella | string |  |
-| inflation_fish_goldstripe_sardinella | string |  |
-| trust_fish_goldstripe_sardinella | string |  |
-| o_fish_mackerel | string |  |
-| h_fish_mackerel | string |  |
-| l_fish_mackerel | string |  |
-| c_fish_mackerel | string |  |
-| inflation_fish_mackerel | string |  |
-| trust_fish_mackerel | string |  |
-| o_fish_mullet_catfish | string |  |
-| h_fish_mullet_catfish | string |  |
-| l_fish_mullet_catfish | string |  |
-| c_fish_mullet_catfish | string |  |
-| inflation_fish_mullet_catfish | string |  |
-| trust_fish_mullet_catfish | string |  |
-| o_fish_salted | string |  |
-| h_fish_salted | string |  |
-| l_fish_salted | string |  |
-| c_fish_salted | string |  |
-| inflation_fish_salted | string |  |
-| trust_fish_salted | string |  |
-| o_fish_sardine_canned | string |  |
-| h_fish_sardine_canned | string |  |
-| l_fish_sardine_canned | string |  |
-| c_fish_sardine_canned | string |  |
-| inflation_fish_sardine_canned | string |  |
-| trust_fish_sardine_canned | string |  |
-| o_fish_smoked | string |  |
-| h_fish_smoked | string |  |
-| l_fish_smoked | string |  |
-| c_fish_smoked | string |  |
-| inflation_fish_smoked | string |  |
-| trust_fish_smoked | string |  |
-| o_fish_tilapia | string |  |
-| h_fish_tilapia | string |  |
-| l_fish_tilapia | string |  |
-| c_fish_tilapia | string |  |
-| inflation_fish_tilapia | string |  |
-| trust_fish_tilapia | string |  |
-| o_fish_tuna_canned | string |  |
-| h_fish_tuna_canned | string |  |
-| l_fish_tuna_canned | string |  |
-| c_fish_tuna_canned | string |  |
-| inflation_fish_tuna_canned | string |  |
-| trust_fish_tuna_canned | string |  |
-| o_fonio | string |  |
-| h_fonio | string |  |
-| l_fonio | string |  |
-| c_fonio | string |  |
-| inflation_fonio | string |  |
-| trust_fonio | string |  |
-| o_gari_fao | string |  |
-| h_gari_fao | string |  |
-| l_gari_fao | string |  |
-| c_gari_fao | string |  |
-| inflation_gari_fao | string |  |
-| trust_gari_fao | string |  |
-| o_garlic | string |  |
-| h_garlic | string |  |
-| l_garlic | string |  |
-| c_garlic | string |  |
-| inflation_garlic | string |  |
-| trust_garlic | string |  |
-| o_groundnuts | string |  |
-| h_groundnuts | string |  |
-| l_groundnuts | string |  |
-| c_groundnuts | string |  |
-| inflation_groundnuts | string |  |
-| trust_groundnuts | string |  |
-| o_groundnuts_paste | string |  |
-| h_groundnuts_paste | string |  |
-| l_groundnuts_paste | string |  |
-| c_groundnuts_paste | string |  |
-| inflation_groundnuts_paste | string |  |
-| trust_groundnuts_paste | string |  |
-| o_honey | string |  |
-| h_honey | string |  |
-| l_honey | string |  |
-| c_honey | string |  |
-| inflation_honey | string |  |
-| trust_honey | string |  |
-| o_lemons | string |  |
-| h_lemons | string |  |
-| l_lemons | string |  |
-| c_lemons | string |  |
-| inflation_lemons | string |  |
-| trust_lemons | string |  |
-| o_lentils | string |  |
-| h_lentils | string |  |
-| l_lentils | string |  |
-| c_lentils | string |  |
-| inflation_lentils | string |  |
-| trust_lentils | string |  |
-| o_lettuce | string |  |
-| h_lettuce | string |  |
-| l_lettuce | string |  |
-| c_lettuce | string |  |
-| inflation_lettuce | string |  |
-| trust_lettuce | string |  |
-| o_livestock_camel_fao | string |  |
-| h_livestock_camel_fao | string |  |
-| l_livestock_camel_fao | string |  |
-| c_livestock_camel_fao | string |  |
-| inflation_livestock_camel_fao | string |  |
-| trust_livestock_camel_fao | string |  |
-| o_livestock_goat | string |  |
-| h_livestock_goat | string |  |
-| l_livestock_goat | string |  |
-| c_livestock_goat | string |  |
-| inflation_livestock_goat | string |  |
-| trust_livestock_goat | string |  |
-| o_livestock_goat_fao | string |  |
-| h_livestock_goat_fao | string |  |
-| l_livestock_goat_fao | string |  |
-| c_livestock_goat_fao | string |  |
-| inflation_livestock_goat_fao | string |  |
-| trust_livestock_goat_fao | string |  |
-| o_livestock_goat_s_fao | string |  |
-| h_livestock_goat_s_fao | string |  |
-| l_livestock_goat_s_fao | string |  |
-| c_livestock_goat_s_fao | string |  |
-| inflation_livestock_goat_s_fao | string |  |
-| trust_livestock_goat_s_fao | string |  |
-| o_livestock_sheep | string |  |
-| h_livestock_sheep | string |  |
-| l_livestock_sheep | string |  |
-| c_livestock_sheep | string |  |
-| inflation_livestock_sheep | string |  |
-| trust_livestock_sheep | string |  |
-| o_livestockgoat_castrated_male | string |  |
-| h_livestockgoat_castrated_male | string |  |
-| l_livestockgoat_castrated_male | string |  |
-| c_livestockgoat_castrated_male | string |  |
-| inflation_livestockgoat_castrated_male | string |  |
-| trust_livestockgoat_castrated_male | string |  |
-| o_livestockgoat_male | string |  |
-| h_livestockgoat_male | string |  |
-| l_livestockgoat_male | string |  |
-| c_livestockgoat_male | string |  |
-| inflation_livestockgoat_male | string |  |
-| trust_livestockgoat_male | string |  |
-| o_livestocksheep_castrated_male | string |  |
-| h_livestocksheep_castrated_male | string |  |
-| l_livestocksheep_castrated_male | string |  |
-| c_livestocksheep_castrated_male | string |  |
-| inflation_livestocksheep_castrated_male | string |  |
-| trust_livestocksheep_castrated_male | string |  |
-| o_livestocksheep_male | string |  |
-| h_livestocksheep_male | string |  |
-| l_livestocksheep_male | string |  |
-| c_livestocksheep_male | string |  |
-| inflation_livestocksheep_male | string |  |
-| trust_livestocksheep_male | string |  |
-| o_maize | string |  |
-| h_maize | string |  |
-| l_maize | string |  |
-| c_maize | string |  |
-| inflation_maize | string |  |
-| trust_maize | string |  |
-| o_maize_fao | string |  |
-| h_maize_fao | string |  |
-| l_maize_fao | string |  |
-| c_maize_fao | string |  |
-| inflation_maize_fao | string |  |
-| trust_maize_fao | string |  |
-| o_maize_flour | string |  |
-| h_maize_flour | string |  |
-| l_maize_flour | string |  |
-| c_maize_flour | string |  |
-| inflation_maize_flour | string |  |
-| trust_maize_flour | string |  |
-| o_maize_meal | string |  |
-| h_maize_meal | string |  |
-| l_maize_meal | string |  |
-| c_maize_meal | string |  |
-| inflation_maize_meal | string |  |
-| trust_maize_meal | string |  |
-| o_mangoes | string |  |
-| h_mangoes | string |  |
-| l_mangoes | string |  |
-| c_mangoes | string |  |
-| inflation_mangoes | string |  |
-| trust_mangoes | string |  |
-| o_meat_beef | string |  |
-| h_meat_beef | string |  |
-| l_meat_beef | string |  |
-| c_meat_beef | string |  |
-| inflation_meat_beef | string |  |
-| trust_meat_beef | string |  |
-| o_meat_beef_canned | string |  |
-| h_meat_beef_canned | string |  |
-| l_meat_beef_canned | string |  |
-| c_meat_beef_canned | string |  |
-| inflation_meat_beef_canned | string |  |
-| trust_meat_beef_canned | string |  |
-| o_meat_beef_fao | string |  |
-| h_meat_beef_fao | string |  |
-| l_meat_beef_fao | string |  |
-| c_meat_beef_fao | string |  |
-| inflation_meat_beef_fao | string |  |
-| trust_meat_beef_fao | string |  |
-| o_meat_buffalo | string |  |
-| h_meat_buffalo | string |  |
-| l_meat_buffalo | string |  |
-| c_meat_buffalo | string |  |
-| inflation_meat_buffalo | string |  |
-| trust_meat_buffalo | string |  |
-| o_meat_camel_fao | string |  |
-| h_meat_camel_fao | string |  |
-| l_meat_camel_fao | string |  |
-| c_meat_camel_fao | string |  |
-| inflation_meat_camel_fao | string |  |
-| trust_meat_camel_fao | string |  |
-| o_meat_chicken | string |  |
-| h_meat_chicken | string |  |
-| l_meat_chicken | string |  |
-| c_meat_chicken | string |  |
-| inflation_meat_chicken | string |  |
-| trust_meat_chicken | string |  |
-| o_meat_chicken_broiler | string |  |
-| h_meat_chicken_broiler | string |  |
-| l_meat_chicken_broiler | string |  |
-| c_meat_chicken_broiler | string |  |
-| inflation_meat_chicken_broiler | string |  |
-| trust_meat_chicken_broiler | string |  |
-| o_meat_goat | string |  |
-| h_meat_goat | string |  |
-| l_meat_goat | string |  |
-| c_meat_goat | string |  |
-| inflation_meat_goat | string |  |
-| trust_meat_goat | string |  |
-| o_meat_lamb | string |  |
-| h_meat_lamb | string |  |
-| l_meat_lamb | string |  |
-| c_meat_lamb | string |  |
-| inflation_meat_lamb | string |  |
-| trust_meat_lamb | string |  |
-| o_meat_pork | string |  |
-| h_meat_pork | string |  |
-| l_meat_pork | string |  |
-| c_meat_pork | string |  |
-| inflation_meat_pork | string |  |
-| trust_meat_pork | string |  |
-| o_meat_sheep | string |  |
-| h_meat_sheep | string |  |
-| l_meat_sheep | string |  |
-| c_meat_sheep | string |  |
-| inflation_meat_sheep | string |  |
-| trust_meat_sheep | string |  |
-| o_milk | string |  |
-| h_milk | string |  |
-| l_milk | string |  |
-| c_milk | string |  |
-| inflation_milk | string |  |
-| trust_milk | string |  |
-| o_milk_fao | string |  |
-| h_milk_fao | string |  |
-| l_milk_fao | string |  |
-| c_milk_fao | string |  |
-| inflation_milk_fao | string |  |
-| trust_milk_fao | string |  |
-| o_millet | string |  |
-| h_millet | string |  |
-| l_millet | string |  |
-| c_millet | string |  |
-| inflation_millet | string |  |
-| trust_millet | string |  |
-| o_millet_fao | string |  |
-| h_millet_fao | string |  |
-| l_millet_fao | string |  |
-| c_millet_fao | string |  |
-| inflation_millet_fao | string |  |
-| trust_millet_fao | string |  |
-| o_millet_flour | string |  |
-| h_millet_flour | string |  |
-| l_millet_flour | string |  |
-| c_millet_flour | string |  |
-| inflation_millet_flour | string |  |
-| trust_millet_flour | string |  |
-| o_oil | string |  |
-| h_oil | string |  |
-| l_oil | string |  |
-| c_oil | string |  |
-| inflation_oil | string |  |
-| trust_oil | string |  |
-| o_oil_fao | string |  |
-| h_oil_fao | string |  |
-| l_oil_fao | string |  |
-| c_oil_fao | string |  |
-| inflation_oil_fao | string |  |
-| trust_oil_fao | string |  |
-| o_okra | string |  |
-| h_okra | string |  |
-| l_okra | string |  |
-| c_okra | string |  |
-| inflation_okra | string |  |
-| trust_okra | string |  |
-| o_onions | string |  |
-| h_onions | string |  |
-| l_onions | string |  |
-| c_onions | string |  |
-| inflation_onions | string |  |
-| trust_onions | string |  |
-| o_onions_fao | string |  |
-| h_onions_fao | string |  |
-| l_onions_fao | string |  |
-| c_onions_fao | string |  |
-| inflation_onions_fao | string |  |
-| trust_onions_fao | string |  |
-| o_oranges | string |  |
-| h_oranges | string |  |
-| l_oranges | string |  |
-| c_oranges | string |  |
-| inflation_oranges | string |  |
-| trust_oranges | string |  |
-| o_pasta | string |  |
-| h_pasta | string |  |
-| l_pasta | string |  |
-| c_pasta | string |  |
-| inflation_pasta | string |  |
-| trust_pasta | string |  |
-| o_peppers | string |  |
-| h_peppers | string |  |
-| l_peppers | string |  |
-| c_peppers | string |  |
-| inflation_peppers | string |  |
-| trust_peppers | string |  |
-| o_plantains | string |  |
-| h_plantains | string |  |
-| l_plantains | string |  |
-| c_plantains | string |  |
-| inflation_plantains | string |  |
-| trust_plantains | string |  |
-| o_plantains_fao | string |  |
-| h_plantains_fao | string |  |
-| l_plantains_fao | string |  |
-| c_plantains_fao | string |  |
-| inflation_plantains_fao | string |  |
-| trust_plantains_fao | string |  |
-| o_potatoes | string |  |
-| h_potatoes | string |  |
-| l_potatoes | string |  |
-| c_potatoes | string |  |
-| inflation_potatoes | string |  |
-| trust_potatoes | string |  |
-| o_potatoes_fao | string |  |
-| h_potatoes_fao | string |  |
-| l_potatoes_fao | string |  |
-| c_potatoes_fao | string |  |
-| inflation_potatoes_fao | string |  |
-| trust_potatoes_fao | string |  |
-| o_pulses | string |  |
-| h_pulses | string |  |
-| l_pulses | string |  |
-| c_pulses | string |  |
-| inflation_pulses | string |  |
-| trust_pulses | string |  |
-| o_pumpkin | string |  |
-| h_pumpkin | string |  |
-| l_pumpkin | string |  |
-| c_pumpkin | string |  |
-| inflation_pumpkin | string |  |
-| trust_pumpkin | string |  |
-| o_rice | string |  |
-| h_rice | string |  |
-| l_rice | string |  |
-| c_rice | string |  |
-| inflation_rice | string |  |
-| trust_rice | string |  |
-| o_rice_fao | string |  |
-| h_rice_fao | string |  |
-| l_rice_fao | string |  |
-| c_rice_fao | string |  |
-| inflation_rice_fao | string |  |
-| trust_rice_fao | string |  |
-| o_rice_various | string |  |
-| h_rice_various | string |  |
-| l_rice_various | string |  |
-| c_rice_various | string |  |
-| inflation_rice_various | string |  |
-| trust_rice_various | string |  |
-| o_salt | string |  |
-| h_salt | string |  |
-| l_salt | string |  |
-| c_salt | string |  |
-| inflation_salt | string |  |
-| trust_salt | string |  |
-| o_sesame | string |  |
-| h_sesame | string |  |
-| l_sesame | string |  |
-| c_sesame | string |  |
-| inflation_sesame | string |  |
-| trust_sesame | string |  |
-| o_shrimps | string |  |
-| h_shrimps | string |  |
-| l_shrimps | string |  |
-| c_shrimps | string |  |
-| inflation_shrimps | string |  |
-| trust_shrimps | string |  |
-| o_sorghum | string |  |
-| h_sorghum | string |  |
-| l_sorghum | string |  |
-| c_sorghum | string |  |
-| inflation_sorghum | string |  |
-| trust_sorghum | string |  |
-| o_sorghum_fao | string |  |
-| h_sorghum_fao | string |  |
-| l_sorghum_fao | string |  |
-| c_sorghum_fao | string |  |
-| inflation_sorghum_fao | string |  |
-| trust_sorghum_fao | string |  |
-| o_sorghum_food_aid | string |  |
-| h_sorghum_food_aid | string |  |
-| l_sorghum_food_aid | string |  |
-| c_sorghum_food_aid | string |  |
-| inflation_sorghum_food_aid | string |  |
-| trust_sorghum_food_aid | string |  |
-| o_sugar | string |  |
-| h_sugar | string |  |
-| l_sugar | string |  |
-| c_sugar | string |  |
-| inflation_sugar | string |  |
-| trust_sugar | string |  |
-| o_tea | string |  |
-| h_tea | string |  |
-| l_tea | string |  |
-| c_tea | string |  |
-| inflation_tea | string |  |
-| trust_tea | string |  |
-| o_teff_fao | string |  |
-| h_teff_fao | string |  |
-| l_teff_fao | string |  |
-| c_teff_fao | string |  |
-| inflation_teff_fao | string |  |
-| trust_teff_fao | string |  |
-| o_tomatoes | string |  |
-| h_tomatoes | string |  |
-| l_tomatoes | string |  |
-| c_tomatoes | string |  |
-| inflation_tomatoes | string |  |
-| trust_tomatoes | string |  |
-| o_tomatoes_fao | string |  |
-| h_tomatoes_fao | string |  |
-| l_tomatoes_fao | string |  |
-| c_tomatoes_fao | string |  |
-| inflation_tomatoes_fao | string |  |
-| trust_tomatoes_fao | string |  |
-| o_tomatoes_paste | string |  |
-| h_tomatoes_paste | string |  |
-| l_tomatoes_paste | string |  |
-| c_tomatoes_paste | string |  |
-| inflation_tomatoes_paste | string |  |
-| trust_tomatoes_paste | string |  |
-| o_watermelons | string |  |
-| h_watermelons | string |  |
-| l_watermelons | string |  |
-| c_watermelons | string |  |
-| inflation_watermelons | string |  |
-| trust_watermelons | string |  |
-| o_wheat | string |  |
-| h_wheat | string |  |
-| l_wheat | string |  |
-| c_wheat | string |  |
-| inflation_wheat | string |  |
-| trust_wheat | string |  |
-| o_wheat_fao | string |  |
-| h_wheat_fao | string |  |
-| l_wheat_fao | string |  |
-| c_wheat_fao | string |  |
-| inflation_wheat_fao | string |  |
-| trust_wheat_fao | string |  |
-| o_wheat_flour | string |  |
-| h_wheat_flour | string |  |
-| l_wheat_flour | string |  |
-| c_wheat_flour | string |  |
-| inflation_wheat_flour | string |  |
-| trust_wheat_flour | string |  |
-| o_wheat_flour_fao | string |  |
-| h_wheat_flour_fao | string |  |
-| l_wheat_flour_fao | string |  |
-| c_wheat_flour_fao | string |  |
-| inflation_wheat_flour_fao | string |  |
-| trust_wheat_flour_fao | string |  |
-| o_wheat_flour_low_price_fao | string |  |
-| h_wheat_flour_low_price_fao | string |  |
-| l_wheat_flour_low_price_fao | string |  |
-| c_wheat_flour_low_price_fao | string |  |
-| inflation_wheat_flour_low_price_fao | string |  |
-| trust_wheat_flour_low_price_fao | string |  |
-| o_yam | string |  |
-| h_yam | string |  |
-| l_yam | string |  |
-| c_yam | string |  |
-| inflation_yam | string |  |
-| trust_yam | string |  |
-| o_yogurt | string |  |
-| h_yogurt | string |  |
-| l_yogurt | string |  |
-| c_yogurt | string |  |
-| inflation_yogurt | string |  |
-| trust_yogurt | string |  |
-| o_food_price_index | string |  |
-| h_food_price_index | string |  |
-| l_food_price_index | string |  |
-| c_food_price_index | string |  |
-| inflation_food_price_index | string |  |
-| trust_food_price_index | string |  |
-| _run_id | string |  |
-| _source_system | string |  |
-| _source_file | string |  |
-| _i
+| Notebook | Purpose |
+|---|---|
+| `01_world_bank_bronze` | Downloads the API to CSV and MERGEs it into `bronze.world_bank_food_prices`. |
+| `02_world_bank_validation` | Optional checks on Bronze (keys, coordinates, dates). |
+| `03_silver` | Casts, validates, de-duplicates and MERGEs into `silver.world_bank_food_prices`. |
 
-... [*** WARNING: max output size exceeded, skipping output. ***] ...
+Bronze -> Silver; bad rows go to `rejects.*`, run logs to `audit.*`.
 
-double |  |
-| cheese | double |  |
-| chickpeas | double |  |
-| chili | double |  |
-| cocoa | double |  |
-| cocoyam_fao | double |  |
-| coffee_instant | double |  |
-| couscous | double |  |
-| couscous_fao | double |  |
-| cowpeas | double |  |
-| cucumbers | double |  |
-| dates | double |  |
-| eggplants | double |  |
-| eggs | double |  |
-| fish | double |  |
-| fish_barbel_sole | double |  |
-| fish_catfish | double |  |
-| fish_goldstripe_sardinella | double |  |
-| fish_mackerel | double |  |
-| fish_mullet_catfish | double |  |
-| fish_salted | double |  |
-| fish_sardine_canned | double |  |
-| fish_smoked | double |  |
-| fish_tilapia | double |  |
-| fish_tuna_canned | double |  |
-| fonio | double |  |
-| gari_fao | double |  |
-| garlic | double |  |
-| groundnuts | double |  |
-| groundnuts_paste | double |  |
-| honey | double |  |
-| lemons | double |  |
-| lentils | double |  |
-| lettuce | double |  |
-| livestock_camel_fao | double |  |
-| livestock_goat | double |  |
-| livestock_goat_fao | double |  |
-| livestock_goat_s_fao | double |  |
-| livestock_sheep | double |  |
-| livestockgoat_castrated_male | double |  |
-| livestockgoat_male | double |  |
-| livestocksheep_castrated_male | double |  |
-| livestocksheep_male | double |  |
-| maize | double |  |
-| maize_fao | double |  |
-| maize_flour | double |  |
-| maize_meal | double |  |
-| mangoes | double |  |
-| meat_beef | double |  |
-| meat_beef_canned | double |  |
-| meat_beef_fao | double |  |
-| meat_buffalo | double |  |
-| meat_camel_fao | double |  |
-| meat_chicken | double |  |
-| meat_chicken_broiler | double |  |
-| meat_goat | double |  |
-| meat_lamb | double |  |
-| meat_pork | double |  |
-| meat_sheep | double |  |
-| milk | double |  |
-| milk_fao | double |  |
-| millet | double |  |
-| millet_fao | double |  |
-| millet_flour | double |  |
-| oil | double |  |
-| oil_fao | double |  |
-| okra | double |  |
-| onions | double |  |
-| onions_fao | double |  |
-| oranges | double |  |
-| pasta | double |  |
-| peppers | double |  |
-| plantains | double |  |
-| plantains_fao | double |  |
-| potatoes | double |  |
-| potatoes_fao | double |  |
-| pulses | double |  |
-| pumpkin | double |  |
-| rice | double |  |
-| rice_fao | double |  |
-| rice_various | double |  |
-| salt | double |  |
-| sesame | double |  |
-| shrimps | double |  |
-| sorghum | double |  |
-| sorghum_fao | double |  |
-| sorghum_food_aid | double |  |
-| sugar | double |  |
-| tea | double |  |
-| teff_fao | double |  |
-| tomatoes | double |  |
-| tomatoes_fao | double |  |
-| tomatoes_paste | double |  |
-| watermelons | double |  |
-| wheat | double |  |
-| wheat_fao | double |  |
-| wheat_flour | double |  |
-| wheat_flour_fao | double |  |
-| wheat_flour_low_price_fao | double |  |
-| yam | double |  |
-| yogurt | double |  |
-| o_apples | double |  |
-| h_apples | double |  |
-| l_apples | double |  |
-| c_apples | double |  |
-| inflation_apples | double |  |
-| trust_apples | double |  |
-| o_bananas | double |  |
-| h_bananas | double |  |
-| l_bananas | double |  |
-| c_bananas | double |  |
-| inflation_bananas | double |  |
-| trust_bananas | double |  |
-| o_beans | double |  |
-| h_beans | double |  |
-| l_beans | double |  |
-| c_beans | double |  |
-| inflation_beans | double |  |
-| trust_beans | double |  |
-| o_beans_fao | double |  |
-| h_beans_fao | double |  |
-| l_beans_fao | double |  |
-| c_beans_fao | double |  |
-| inflation_beans_fao | double |  |
-| trust_beans_fao | double |  |
-| o_bread | double |  |
-| h_bread | double |  |
-| l_bread | double |  |
-| c_bread | double |  |
-| inflation_bread | double |  |
-| trust_bread | double |  |
-| o_bread_fao | double |  |
-| h_bread_fao | double |  |
-| l_bread_fao | double |  |
-| c_bread_fao | double |  |
-| inflation_bread_fao | double |  |
-| trust_bread_fao | double |  |
-| o_butter | double |  |
-| h_butter | double |  |
-| l_butter | double |  |
-| c_butter | double |  |
-| inflation_butter | double |  |
-| trust_butter | double |  |
-| o_cabbage | double |  |
-| h_cabbage | double |  |
-| l_cabbage | double |  |
-| c_cabbage | double |  |
-| inflation_cabbage | double |  |
-| trust_cabbage | double |  |
-| o_carrots | double |  |
-| h_carrots | double |  |
-| l_carrots | double |  |
-| c_carrots | double |  |
-| inflation_carrots | double |  |
-| trust_carrots | double |  |
-| o_cassava | double |  |
-| h_cassava | double |  |
-| l_cassava | double |  |
-| c_cassava | double |  |
-| inflation_cassava | double |  |
-| trust_cassava | double |  |
-| o_cassava_fao | double |  |
-| h_cassava_fao | double |  |
-| l_cassava_fao | double |  |
-| c_cassava_fao | double |  |
-| inflation_cassava_fao | double |  |
-| trust_cassava_fao | double |  |
-| o_cassava_flour | double |  |
-| h_cassava_flour | double |  |
-| l_cassava_flour | double |  |
-| c_cassava_flour | double |  |
-| inflation_cassava_flour | double |  |
-| trust_cassava_flour | double |  |
-| o_cassava_flour_fao | double |  |
-| h_cassava_flour_fao | double |  |
-| l_cassava_flour_fao | double |  |
-| c_cassava_flour_fao | double |  |
-| inflation_cassava_flour_fao | double |  |
-| trust_cassava_flour_fao | double |  |
-| o_cassava_leaves | double |  |
-| h_cassava_leaves | double |  |
-| l_cassava_leaves | double |  |
-| c_cassava_leaves | double |  |
-| inflation_cassava_leaves | double |  |
-| trust_cassava_leaves | double |  |
-| o_cassava_meal | double |  |
-| h_cassava_meal | double |  |
-| l_cassava_meal | double |  |
-| c_cassava_meal | double |  |
-| inflation_cassava_meal | double |  |
-| trust_cassava_meal | double |  |
-| o_cheese | double |  |
-| h_cheese | double |  |
-| l_cheese | double |  |
-| c_cheese | double |  |
-| inflation_cheese | double |  |
-| trust_cheese | double |  |
-| o_chickpeas | double |  |
-| h_chickpeas | double |  |
-| l_chickpeas | double |  |
-| c_chickpeas | double |  |
-| inflation_chickpeas | double |  |
-| trust_chickpeas | double |  |
-| o_chili | double |  |
-| h_chili | double |  |
-| l_chili | double |  |
-| c_chili | double |  |
-| inflation_chili | double |  |
-| trust_chili | double |  |
-| o_cocoa | double |  |
-| h_cocoa | double |  |
-| l_cocoa | double |  |
-| c_cocoa | double |  |
-| inflation_cocoa | double |  |
-| trust_cocoa | double |  |
-| o_cocoyam_fao | double |  |
-| h_cocoyam_fao | double |  |
-| l_cocoyam_fao | double |  |
-| c_cocoyam_fao | double |  |
-| inflation_cocoyam_fao | double |  |
-| trust_cocoyam_fao | double |  |
-| o_coffee_instant | double |  |
-| h_coffee_instant | double |  |
-| l_coffee_instant | double |  |
-| c_coffee_instant | double |  |
-| inflation_coffee_instant | double |  |
-| trust_coffee_instant | double |  |
-| o_couscous | double |  |
-| h_couscous | double |  |
-| l_couscous | double |  |
-| c_couscous | double |  |
-| inflation_couscous | double |  |
-| trust_couscous | double |  |
-| o_couscous_fao | double |  |
-| h_couscous_fao | double |  |
-| l_couscous_fao | double |  |
-| c_couscous_fao | double |  |
-| inflation_couscous_fao | double |  |
-| trust_couscous_fao | double |  |
-| o_cowpeas | double |  |
-| h_cowpeas | double |  |
-| l_cowpeas | double |  |
-| c_cowpeas | double |  |
-| inflation_cowpeas | double |  |
-| trust_cowpeas | double |  |
-| o_cucumbers | double |  |
-| h_cucumbers | double |  |
-| l_cucumbers | double |  |
-| c_cucumbers | double |  |
-| inflation_cucumbers | double |  |
-| trust_cucumbers | double |  |
-| o_dates | double |  |
-| h_dates | double |  |
-| l_dates | double |  |
-| c_dates | double |  |
-| inflation_dates | double |  |
-| trust_dates | double |  |
-| o_eggplants | double |  |
-| h_eggplants | double |  |
-| l_eggplants | double |  |
-| c_eggplants | double |  |
-| inflation_eggplants | double |  |
-| trust_eggplants | double |  |
-| o_eggs | double |  |
-| h_eggs | double |  |
-| l_eggs | double |  |
-| c_eggs | double |  |
-| inflation_eggs | double |  |
-| trust_eggs | double |  |
-| o_fish | double |  |
-| h_fish | double |  |
-| l_fish | double |  |
-| c_fish | double |  |
-| inflation_fish | double |  |
-| trust_fish | double |  |
-| o_fish_barbel_sole | double |  |
-| h_fish_barbel_sole | double |  |
-| l_fish_barbel_sole | double |  |
-| c_fish_barbel_sole | double |  |
-| inflation_fish_barbel_sole | double |  |
-| trust_fish_barbel_sole | double |  |
-| o_fish_catfish | double |  |
-| h_fish_catfish | double |  |
-| l_fish_catfish | double |  |
-| c_fish_catfish | double |  |
-| inflation_fish_catfish | double |  |
-| trust_fish_catfish | double |  |
-| o_fish_goldstripe_sardinella | double |  |
-| h_fish_goldstripe_sardinella | double |  |
-| l_fish_goldstripe_sardinella | double |  |
-| c_fish_goldstripe_sardinella | double |  |
-| inflation_fish_goldstripe_sardinella | double |  |
-| trust_fish_goldstripe_sardinella | double |  |
-| o_fish_mackerel | double |  |
-| h_fish_mackerel | double |  |
-| l_fish_mackerel | double |  |
-| c_fish_mackerel | double |  |
-| inflation_fish_mackerel | double |  |
-| trust_fish_mackerel | double |  |
-| o_fish_mullet_catfish | double |  |
-| h_fish_mullet_catfish | double |  |
-| l_fish_mullet_catfish | double |  |
-| c_fish_mullet_catfish | double |  |
-| inflation_fish_mullet_catfish | double |  |
-| trust_fish_mullet_catfish | double |  |
-| o_fish_salted | double |  |
-| h_fish_salted | double |  |
-| l_fish_salted | double |  |
-| c_fish_salted | double |  |
-| inflation_fish_salted | double |  |
-| trust_fish_salted | double |  |
-| o_fish_sardine_canned | double |  |
-| h_fish_sardine_canned | double |  |
-| l_fish_sardine_canned | double |  |
-| c_fish_sardine_canned | double |  |
-| inflation_fish_sardine_canned | double |  |
-| trust_fish_sardine_canned | double |  |
-| o_fish_smoked | double |  |
-| h_fish_smoked | double |  |
-| l_fish_smoked | double |  |
-| c_fish_smoked | double |  |
-| inflation_fish_smoked | double |  |
-| trust_fish_smoked | double |  |
-| o_fish_tilapia | double |  |
-| h_fish_tilapia | double |  |
-| l_fish_tilapia | double |  |
-| c_fish_tilapia | double |  |
-| inflation_fish_tilapia | double |  |
-| trust_fish_tilapia | double |  |
-| o_fish_tuna_canned | double |  |
-| h_fish_tuna_canned | double |  |
-| l_fish_tuna_canned | double |  |
-| c_fish_tuna_canned | double |  |
-| inflation_fish_tuna_canned | double |  |
-| trust_fish_tuna_canned | double |  |
-| o_fonio | double |  |
-| h_fonio | double |  |
-| l_fonio | double |  |
-| c_fonio | double |  |
-| inflation_fonio | double |  |
-| trust_fonio | double |  |
-| o_gari_fao | double |  |
-| h_gari_fao | double |  |
-| l_gari_fao | double |  |
-| c_gari_fao | double |  |
-| inflation_gari_fao | double |  |
-| trust_gari_fao | double |  |
-| o_garlic | double |  |
-| h_garlic | double |  |
-| l_garlic | double |  |
-| c_garlic | double |  |
-| inflation_garlic | double |  |
-| trust_garlic | double |  |
-| o_groundnuts | double |  |
-| h_groundnuts | double |  |
-| l_groundnuts | double |  |
-| c_groundnuts | double |  |
-| inflation_groundnuts | double |  |
-| trust_groundnuts | double |  |
-| o_groundnuts_paste | double |  |
-| h_groundnuts_paste | double |  |
-| l_groundnuts_paste | double |  |
-| c_groundnuts_paste | double |  |
-| inflation_groundnuts_paste | double |  |
-| trust_groundnuts_paste | double |  |
-| o_honey | double |  |
-| h_honey | double |  |
-| l_honey | double |  |
-| c_honey | double |  |
-| inflation_honey | double |  |
-| trust_honey | double |  |
-| o_lemons | double |  |
-| h_lemons | double |  |
-| l_lemons | double |  |
-| c_lemons | double |  |
-| inflation_lemons | double |  |
-| trust_lemons | double |  |
-| o_lentils | double |  |
-| h_lentils | double |  |
-| l_lentils | double |  |
-| c_lentils | double |  |
-| inflation_lentils | double |  |
-| trust_lentils | double |  |
-| o_lettuce | double |  |
-| h_lettuce | double |  |
-| l_lettuce | double |  |
-| c_lettuce | double |  |
-| inflation_lettuce | double |  |
-| trust_lettuce | double |  |
-| o_livestock_camel_fao | double |  |
-| h_livestock_camel_fao | double |  |
-| l_livestock_camel_fao | double |  |
-| c_livestock_camel_fao | double |  |
-| inflation_livestock_camel_fao | double |  |
-| trust_livestock_camel_fao | double |  |
-| o_livestock_goat | double |  |
-| h_livestock_goat | double |  |
-| l_livestock_goat | double |  |
-| c_livestock_goat | double |  |
-| inflation_livestock_goat | double |  |
-| trust_livestock_goat | double |  |
-| o_livestock_goat_fao | double |  |
-| h_livestock_goat_fao | double |  |
-| l_livestock_goat_fao | double |  |
-| c_livestock_goat_fao | double |  |
-| inflation_livestock_goat_fao | double |  |
-| trust_livestock_goat_fao | double |  |
-| o_livestock_goat_s_fao | double |  |
-| h_livestock_goat_s_fao | double |  |
-| l_livestock_goat_s_fao | double |  |
-| c_livestock_goat_s_fao | double |  |
-| inflation_livestock_goat_s_fao | double |  |
-| trust_livestock_goat_s_fao | double |  |
-| o_livestock_sheep | double |  |
-| h_livestock_sheep | double |  |
-| l_livestock_sheep | double |  |
-| c_livestock_sheep | double |  |
-| inflation_livestock_sheep | double |  |
-| trust_livestock_sheep | double |  |
-| o_livestockgoat_castrated_male | double |  |
-| h_livestockgoat_castrated_male | double |  |
-| l_livestockgoat_castrated_male | double |  |
-| c_livestockgoat_castrated_male | double |  |
-| inflation_livestockgoat_castrated_male | double |  |
-| trust_livestockgoat_castrated_male | double |  |
-| o_livestockgoat_male | double |  |
-| h_livestockgoat_male | double |  |
-| l_livestockgoat_male | double |  |
-| c_livestockgoat_male | double |  |
-| inflation_livestockgoat_male | double |  |
-| trust_livestockgoat_male | double |  |
-| o_livestocksheep_castrated_male | double |  |
-| h_livestocksheep_castrated_male | double |  |
-| l_livestocksheep_castrated_male | double |  |
-| c_livestocksheep_castrated_male | double |  |
-| inflation_livestocksheep_castrated_male | double |  |
-| trust_livestocksheep_castrated_male | double |  |
-| o_livestocksheep_male | double |  |
-| h_livestocksheep_male | double |  |
-| l_livestocksheep_male | double |  |
-| c_livestocksheep_male | double |  |
-| inflation_livestocksheep_male | double |  |
-| trust_livestocksheep_male | double |  |
-| o_maize | double |  |
-| h_maize | double |  |
-| l_maize | double |  |
-| c_maize | double |  |
-| inflation_maize | double |  |
-| trust_maize | double |  |
-| o_maize_fao | double |  |
-| h_maize_fao | double |  |
-| l_maize_fao | double |  |
-| c_maize_fao | double |  |
-| inflation_maize_fao | double |  |
-| trust_maize_fao | double |  |
-| o_maize_flour | double |  |
-| h_maize_flour | double |  |
-| l_maize_flour | double |  |
-| c_maize_flour | double |  |
-| inflation_maize_flour | double |  |
-| trust_maize_flour | double |  |
-| o_maize_meal | double |  |
-| h_maize_meal | double |  |
-| l_maize_meal | double |  |
-| c_maize_meal | double |  |
-| inflation_maize_meal | double |  |
-| trust_maize_meal | double |  |
-| o_mangoes | double |  |
-| h_mangoes | double |  |
-| l_mangoes | double |  |
-| c_mangoes | double |  |
-| inflation_mangoes | double |  |
-| trust_mangoes | double |  |
-| o_meat_beef | double |  |
-| h_meat_beef | double |  |
-| l_meat_beef | double |  |
-| c_meat_beef | double |  |
-| inflation_meat_beef | double |  |
-| trust_meat_beef | double |  |
-| o_meat_beef_canned | double |  |
-| h_meat_beef_canned | double |  |
-| l_meat_beef_canned | double |  |
-| c_meat_beef_canned | double |  |
-| inflation_meat_beef_canned | double |  |
-| trust_meat_beef_canned | double |  |
-| o_meat_beef_fao | double |  |
-| h_meat_beef_fao | double |  |
-| l_meat_beef_fao | double |  |
-| c_meat_beef_fao | double |  |
-| inflation_meat_beef_fao | double |  |
-| trust_meat_beef_fao | double |  |
-| o_meat_buffalo | double |  |
-| h_meat_buffalo | double |  |
-| l_meat_buffalo | double |  |
-| c_meat_buffalo | double |  |
-| inflation_meat_buffalo | double |  |
-| trust_meat_buffalo | double |  |
-| o_meat_camel_fao | double |  |
-| h_meat_camel_fao | double |  |
-| l_meat_camel_fao | double |  |
-| c_meat_camel_fao | double |  |
-| inflation_meat_camel_fao | double |  |
-| trust_meat_camel_fao | double |  |
-| o_meat_chicken | double |  |
-| h_meat_chicken | double |  |
-| l_meat_chicken | double |  |
-| c_meat_chicken | double |  |
-| inflation_meat_chicken | double |  |
-| trust_meat_chicken | double |  |
-| o_meat_chicken_broiler | double |  |
-| h_meat_chicken_broiler | double |  |
-| l_meat_chicken_broiler | double |  |
-| c_meat_chicken_broiler | double |  |
-| inflation_meat_chicken_broiler | double |  |
-| trust_meat_chicken_broiler | double |  |
-| o_meat_goat | double |  |
-| h_meat_goat | double |  |
-| l_meat_goat | double |  |
-| c_meat_goat | double |  |
-| inflation_meat_goat | double |  |
-| trust_meat_goat | double |  |
-| o_meat_lamb | double |  |
-| h_meat_lamb | double |  |
-| l_meat_lamb | double |  |
-| c_meat_lamb | double |  |
-| inflation_meat_lamb | double |  |
-| trust_meat_lamb | double |  |
-| o_meat_pork | double |  |
-| h_meat_pork | double |  |
-| l_meat_pork | double |  |
-| c_meat_pork | double |  |
-| inflation_meat_pork | double |  |
-| trust_meat_pork | double |  |
-| o_meat_sheep | double |  |
-| h_meat_sheep | double |  |
-| l_meat_sheep | double |  |
-| c_meat_sheep | double |  |
-| inflation_meat_sheep | double |  |
-| trust_meat_sheep | double |  |
-| o_milk | double |  |
-| h_milk | double |  |
-| l_milk | double |  |
-| c_milk | double |  |
-| inflation_milk | double |  |
-| trust_milk | double |  |
-| o_milk_fao | double |  |
-| h_milk_fao | double |  |
-| l_milk_fao | double |  |
-| c_milk_fao | double |  |
-| inflation_milk_fao | double |  |
-| trust_milk_fao | double |  |
-| o_millet | double |  |
-| h_millet | double |  |
-| l_millet | double |  |
-| c_millet | double |  |
-| inflation_millet | double |  |
-| trust_millet | double |  |
-| o_millet_fao | double |  |
-| h_millet_fao | double |  |
-| l_millet_fao | double |  |
-| c_millet_fao | double |  |
-| inflation_millet_fao | double |  |
-| trust_millet_fao | double |  |
-| o_millet_flour | double |  |
-| h_millet_flour | double |  |
-| l_millet_flour | double |  |
-| c_millet_flour | double |  |
-| inflation_millet_flour | double |  |
-| trust_millet_flour | double |  |
-| o_oil | double |  |
-| h_oil | double |  |
-| l_oil | double |  |
-| c_oil | double |  |
-| inflation_oil | double |  |
-| trust_oil | double |  |
-| o_oil_fao | double |  |
-| h_oil_fao | double |  |
-| l_oil_fao | double |  |
-| c_oil_fao | double |  |
-| inflation_oil_fao | double |  |
-| trust_oil_fao | double |  |
-| o_okra | double |  |
-| h_okra | double |  |
-| l_okra | double |  |
-| c_okra | double |  |
-| inflation_okra | double |  |
-| trust_okra | double |  |
-| o_onions | double |  |
-| h_onions | double |  |
-| l_onions | double |  |
-| c_onions | double |  |
-| inflation_onions | double |  |
-| trust_onions | double |  |
-| o_onions_fao | double |  |
-| h_onions_fao | double |  |
-| l_onions_fao | double |  |
-| c_onions_fao | double |  |
-| inflation_onions_fao | double |  |
-| trust_onions_fao | double |  |
-| o_oranges | double |  |
-| h_oranges | double |  |
-| l_oranges | double |  |
-| c_oranges | double |  |
-| inflation_oranges | double |  |
-| trust_oranges | double |  |
-| o_pasta | double |  |
-| h_pasta | double |  |
-| l_pasta | double |  |
-| c_pasta | double |  |
-| inflation_pasta | double |  |
-| trust_pasta | double |  |
-| o_peppers | double |  |
-| h_peppers | double |  |
-| l_peppers | double |  |
-| c_peppers | double |  |
-| inflation_peppers | double |  |
-| trust_peppers | double |  |
-| o_plantains | double |  |
-| h_plantains | double |  |
-| l_plantains | double |  |
-| c_plantains | double |  |
-| inflation_plantains | double |  |
-| trust_plantains | double |  |
-| o_plantains_fao | double |  |
-| h_plantains_fao | double |  |
-| l_plantains_fao | double |  |
-| c_plantains_fao | double |  |
-| inflation_plantains_fao | double |  |
-| trust_plantains_fao | double |  |
-| o_potatoes | double |  |
-| h_potatoes | double |  |
-| l_potatoes | double |  |
-| c_potatoes | double |  |
-| inflation_potatoes | double |  |
-| trust_potatoes | double |  |
-| o_potatoes_fao | double |  |
-| h_potatoes_fao | double |  |
-| l_potatoes_fao | double |  |
-| c_potatoes_fao | double |  |
-| inflation_potatoes_fao | double |  |
-| trust_potatoes_fao | double |  |
-| o_pulses | double |  |
-| h_pulses | double |  |
-| l_pulses | double |  |
-| c_pulses | double |  |
-| inflation_pulses | double |  |
-| trust_pulses | double |  |
-| o_pumpkin | double |  |
-| h_pumpkin | double |  |
-| l_pumpkin | double |  |
-| c_pumpkin | double |  |
-| inflation_pumpkin | double |  |
-| trust_pumpkin | double |  |
-| o_rice | double |  |
-| h_rice | double |  |
-| l_rice | double |  |
-| c_rice | double |  |
-| inflation_rice | double |  |
-| trust_rice | double |  |
-| o_rice_fao | double |  |
-| h_rice_fao | double |  |
-| l_rice_fao | double |  |
-| c_rice_fao | double |  |
-| inflation_rice_fao | double |  |
-| trust_rice_fao | double |  |
-| o_rice_various | double |  |
-| h_rice_various | double |  |
-| l_rice_various | double |  |
-| c_rice_various | double |  |
-| inflation_rice_various | double |  |
-| trust_rice_various | double |  |
-| o_salt | double |  |
-| h_salt | double |  |
-| l_salt | double |  |
-| c_salt | double |  |
-| inflation_salt | double |  |
-| trust_salt | double |  |
-| o_sesame | double |  |
-| h_sesame | double |  |
-| l_sesame | double |  |
-| c_sesame | double |  |
-| inflation_sesame | double |  |
-| trust_sesame | double |  |
-| o_shrimps | double |  |
-| h_shrimps | double |  |
-| l_shrimps | double |  |
-| c_shrimps | double |  |
-| inflation_shrimps | double |  |
-| trust_shrimps | double |  |
-| o_sorghum | double |  |
-| h_sorghum | double |  |
-| l_sorghum | double |  |
-| c_sorghum | double |  |
-| inflation_sorghum | double |  |
-| trust_sorghum | double |  |
-| o_sorghum_fao | double |  |
-| h_sorghum_fao | double |  |
-| l_sorghum_fao | double |  |
-| c_sorghum_fao | double |  |
-| inflation_sorghum_fao | double |  |
-| trust_sorghum_fao | double |  |
-| o_sorghum_food_aid | double |  |
-| h_sorghum_food_aid | double |  |
-| l_sorghum_food_aid | double |  |
-| c_sorghum_food_aid | double |  |
-| inflation_sorghum_food_aid | double |  |
-| trust_sorghum_food_aid | double |  |
-| o_sugar | double |  |
-| h_sugar | double |  |
-| l_sugar | double |  |
-| c_sugar | double |  |
-| inflation_sugar | double |  |
-| trust_sugar | double |  |
-| o_tea | double |  |
-| h_tea | double |  |
-| l_tea | double |  |
-| c_tea | double |  |
-| inflation_tea | double |  |
-| trust_tea | double |  |
-| o_teff_fao | double |  |
-| h_teff_fao | double |  |
-| l_teff_fao | double |  |
-| c_teff_fao | double |  |
-| inflation_teff_fao | double |  |
-| trust_teff_fao | double |  |
-| o_tomatoes | double |  |
-| h_tomatoes | double |  |
-| l_tomatoes | double |  |
-| c_tomatoes | double |  |
-| inflation_tomatoes | double |  |
-| trust_tomatoes | double |  |
-| o_tomatoes_fao | double |  |
-| h_tomatoes_fao | double |  |
-| l_tomatoes_fao | double |  |
-| c_tomatoes_fao | double |  |
-| inflation_tomatoes_fao | double |  |
-| trust_tomatoes_fao | double |  |
-| o_tomatoes_paste | double |  |
-| h_tomatoes_paste | double |  |
-| l_tomatoes_paste | double |  |
-| c_tomatoes_paste | double |  |
-| inflation_tomatoes_paste | double |  |
-| trust_tomatoes_paste | double |  |
-| o_watermelons | double |  |
-| h_watermelons | double |  |
-| l_watermelons | double |  |
-| c_watermelons | double |  |
-| inflation_watermelons | double |  |
-| trust_watermelons | double |  |
-| o_wheat | double |  |
-| h_wheat | double |  |
-| l_wheat | double |  |
-| c_wheat | double |  |
-| inflation_wheat | double |  |
-| trust_wheat | double |  |
-| o_wheat_fao | double |  |
-| h_wheat_fao | double |  |
-| l_wheat_fao | double |  |
-| c_wheat_fao | double |  |
-| inflation_wheat_fao | double |  |
-| trust_wheat_fao | double |  |
-| o_wheat_flour | double |  |
-| h_wheat_flour | double |  |
-| l_wheat_flour | double |  |
-| c_wheat_flour | double |  |
-| inflation_wheat_flour | double |  |
-| trust_wheat_flour | double |  |
-| o_wheat_flour_fao | double |  |
-| h_wheat_flour_fao | double |  |
-| l_wheat_flour_fao | double |  |
-| c_wheat_flour_fao | double |  |
-| inflation_wheat_flour_fao | double |  |
-| trust_wheat_flour_fao | double |  |
-| o_wheat_flour_low_price_fao | double |  |
-| h_wheat_flour_low_price_fao | double |  |
-| l_wheat_flour_low_price_fao | double |  |
-| c_wheat_flour_low_price_fao | double |  |
-| inflation_wheat_flour_low_price_fao | double |  |
-| trust_wheat_flour_low_price_fao | double |  |
-| o_yam | double |  |
-| h_yam | double |  |
-| l_yam | double |  |
-| c_yam | double |  |
-| inflation_yam | double |  |
-| trust_yam | double |  |
-| o_yogurt | double |  |
-| h_yogurt | double |  |
-| l_yogurt | double |  |
-| c_yogurt | double |  |
-| inflation_yogurt | double |  |
-| trust_yogurt | double |  |
-| o_food_price_index | double |  |
-| h_food_price_index | double |  |
-| l_food_price_index | double |  |
-| c_food_price_index | double |  |
-| inflation_food_price_index | double |  |
-| trust_food_price_index | double |  |
-| _run_id | string |  |
-| _source_system | string |  |
-| _source_file | string |  |
-| _ingestion_timestamp | timestamp |  |
-| load_timestamp | timestamp |  |
-| _silver_run_id | string |  |
-| _silver_processed_at | timestamp |  |
+# Data models
 
-### rejects.silver_food_price_rejects_v2
+**Primary key (Bronze and Silver): `ISO3` + `geo_id` + `price_date`.** Delta does not enforce keys; uniqueness is enforced by the MERGE condition and checked after each load (no duplicates, no null keys).
+
+## `bronze.world_bank_food_prices` (835 columns)
+
+Raw layer: every source column is `string`. Rows are keyed by `ISO3 + geo_id + price_date`.
+
+**Descriptive columns (19)**
 
 | Column | Data type | Primary key |
 |---|---|---|
-| ISO3 | string |  |
-| country | string |  |
-| geo_id | string |  |
-| price_date | date |  |
-| lat | double |  |
-| lon | double |  |
-| year | int |  |
-| month | int |  |
-| reject_reason | string |  |
-| reject_run_id | string |  |
-| rejected_at | timestamp |  |
-| load_timestamp | timestamp |  |
+| `ISO3` | string | PK |
+| `country` | string |  |
+| `adm1_name` | string |  |
+| `adm2_name` | string |  |
+| `mkt_name` | string |  |
+| `lat` | string |  |
+| `lon` | string |  |
+| `geo_id` | string | PK |
+| `price_date` | string | PK |
+| `year` | string |  |
+| `month` | string |  |
+| `currency` | string |  |
+| `components` | string |  |
+| `start_dense_data` | string |  |
+| `last_survey_point` | string |  |
+| `data_coverage` | string |  |
+| `data_coverage_recent` | string |  |
+| `index_confidence_score` | string |  |
+| `spatially_interpolated` | string |  |
 
-### audit.pipeline_runs
+**Price columns (811): all `string`.** Full list under *Price columns* below.
+
+**Metadata columns (5)**
 
 | Column | Data type | Primary key |
 |---|---|---|
-| run_id | string | PK |
-| source_name | string |  |
-| layer | string | PK |
-| load_type | string |  |
-| parameter_processed | string |  |
-| start_time | timestamp |  |
-| end_time | timestamp |  |
-| records_read | bigint |  |
-| records_inserted | bigint |  |
-| records_updated | bigint |  |
-| records_rejected | bigint |  |
-| status | string |  |
-| error_message | string |  |
+| `_run_id` | string |  |
+| `_source_system` | string |  |
+| `_source_file` | string |  |
+| `_ingestion_timestamp` | timestamp |  |
+| `load_timestamp` | timestamp |  |
+
+## `silver.world_bank_food_prices` (837 columns)
+
+Typed layer. Same columns as Bronze with real types, plus two Silver audit columns.
+
+**Descriptive columns (19)**
+
+| Column | Data type | Primary key |
+|---|---|---|
+| `ISO3` | string | PK |
+| `country` | string |  |
+| `adm1_name` | string |  |
+| `adm2_name` | string |  |
+| `mkt_name` | string |  |
+| `lat` | double |  |
+| `lon` | double |  |
+| `geo_id` | string | PK |
+| `price_date` | date | PK |
+| `year` | int |  |
+| `month` | int |  |
+| `currency` | string |  |
+| `components` | string |  |
+| `start_dense_data` | string |  |
+| `last_survey_point` | string |  |
+| `data_coverage` | double |  |
+| `data_coverage_recent` | double |  |
+| `index_confidence_score` | double |  |
+| `spatially_interpolated` | boolean |  |
+
+**Price columns (811): all `double`.** Full list under *Price columns* below.
+
+**Metadata columns (7)**
+
+| Column | Data type | Primary key |
+|---|---|---|
+| `_run_id` | string |  |
+| `_source_system` | string |  |
+| `_source_file` | string |  |
+| `_ingestion_timestamp` | timestamp |  |
+| `load_timestamp` | timestamp |  |
+| `_silver_run_id` | string |  |
+| `_silver_processed_at` | timestamp |  |
+
+## Price columns (811)
+
+The same 811 column names exist in Bronze (`string`) and Silver (`double`), in this order within each group. None is part of the primary key. Nulls are expected (a market reports only a few commodities per month).
+
+**Commodity price columns (115)**
+
+```
+apples, bananas, beans, beans_fao, bread, bread_fao, butter, cabbage, carrots, cassava, cassava_fao,
+cassava_flour, cassava_flour_fao, cassava_leaves, cassava_meal, cheese, chickpeas, chili, cocoa, cocoyam_fao,
+coffee_instant, couscous, couscous_fao, cowpeas, cucumbers, dates, eggplants, eggs, fish, fish_barbel_sole,
+fish_catfish, fish_goldstripe_sardinella, fish_mackerel, fish_mullet_catfish, fish_salted,
+fish_sardine_canned, fish_smoked, fish_tilapia, fish_tuna_canned, fonio, gari_fao, garlic, groundnuts,
+groundnuts_paste, honey, lemons, lentils, lettuce, livestock_camel_fao, livestock_goat, livestock_goat_fao,
+livestock_goat_s_fao, livestock_sheep, livestockgoat_castrated_male, livestockgoat_male,
+livestocksheep_castrated_male, livestocksheep_male, maize, maize_fao, maize_flour, maize_meal, mangoes,
+meat_beef, meat_beef_canned, meat_beef_fao, meat_buffalo, meat_camel_fao, meat_chicken, meat_chicken_broiler,
+meat_goat, meat_lamb, meat_pork, meat_sheep, milk, milk_fao, millet, millet_fao, millet_flour, oil, oil_fao,
+okra, onions, onions_fao, oranges, pasta, peppers, plantains, plantains_fao, potatoes, potatoes_fao, pulses,
+pumpkin, rice, rice_fao, rice_various, salt, sesame, shrimps, sorghum, sorghum_fao, sorghum_food_aid, sugar,
+tea, teff_fao, tomatoes, tomatoes_fao, tomatoes_paste, watermelons, wheat, wheat_fao, wheat_flour,
+wheat_flour_fao, wheat_flour_low_price_fao, yam, yogurt
+```
+
+**`o_*` columns**
+
+```
+o_apples, o_bananas, o_beans, o_beans_fao, o_bread, o_bread_fao, o_butter, o_cabbage, o_carrots, o_cassava,
+o_cassava_fao, o_cassava_flour, o_cassava_flour_fao, o_cassava_leaves, o_cassava_meal, o_cheese, o_chickpeas,
+o_chili, o_cocoa, o_cocoyam_fao, o_coffee_instant, o_couscous, o_couscous_fao, o_cowpeas, o_cucumbers,
+o_dates, o_eggplants, o_eggs, o_fish, o_fish_barbel_sole, o_fish_catfish, o_fish_goldstripe_sardinella,
+o_fish_mackerel, o_fish_mullet_catfish, o_fish_salted, o_fish_sardine_canned, o_fish_smoked, o_fish_tilapia,
+o_fish_tuna_canned, o_fonio, o_gari_fao, o_garlic, o_groundnuts, o_groundnuts_paste, o_honey, o_lemons,
+o_lentils, o_lettuce, o_livestock_camel_fao, o_livestock_goat, o_livestock_goat_fao, o_livestock_goat_s_fao,
+o_livestock_sheep, o_livestockgoat_castrated_male, o_livestockgoat_male, o_livestocksheep_castrated_male,
+o_livestocksheep_male, o_maize, o_maize_fao, o_maize_flour, o_maize_meal, o_mangoes, o_meat_beef,
+o_meat_beef_canned, o_meat_beef_fao, o_meat_buffalo, o_meat_camel_fao, o_meat_chicken, o_meat_chicken_broiler,
+o_meat_goat, o_meat_lamb, o_meat_pork, o_meat_sheep, o_milk, o_milk_fao, o_millet, o_millet_fao,
+o_millet_flour, o_oil, o_oil_fao, o_okra, o_onions, o_onions_fao, o_oranges, o_pasta, o_peppers, o_plantains,
+o_plantains_fao, o_potatoes, o_potatoes_fao, o_pulses, o_pumpkin, o_rice, o_rice_fao, o_rice_various, o_salt,
+o_sesame, o_shrimps, o_sorghum, o_sorghum_fao, o_sorghum_food_aid, o_sugar, o_tea, o_teff_fao, o_tomatoes,
+o_tomatoes_fao, o_tomatoes_paste, o_watermelons, o_wheat, o_wheat_fao, o_wheat_flour, o_wheat_flour_fao,
+o_wheat_flour_low_price_fao, o_yam, o_yogurt, o_food_price_index
+```
+
+**`h_*` columns**
+
+```
+h_apples, h_bananas, h_beans, h_beans_fao, h_bread, h_bread_fao, h_butter, h_cabbage, h_carrots, h_cassava,
+h_cassava_fao, h_cassava_flour, h_cassava_flour_fao, h_cassava_leaves, h_cassava_meal, h_cheese, h_chickpeas,
+h_chili, h_cocoa, h_cocoyam_fao, h_coffee_instant, h_couscous, h_couscous_fao, h_cowpeas, h_cucumbers,
+h_dates, h_eggplants, h_eggs, h_fish, h_fish_barbel_sole, h_fish_catfish, h_fish_goldstripe_sardinella,
+h_fish_mackerel, h_fish_mullet_catfish, h_fish_salted, h_fish_sardine_canned, h_fish_smoked, h_fish_tilapia,
+h_fish_tuna_canned, h_fonio, h_gari_fao, h_garlic, h_groundnuts, h_groundnuts_paste, h_honey, h_lemons,
+h_lentils, h_lettuce, h_livestock_camel_fao, h_livestock_goat, h_livestock_goat_fao, h_livestock_goat_s_fao,
+h_livestock_sheep, h_livestockgoat_castrated_male, h_livestockgoat_male, h_livestocksheep_castrated_male,
+h_livestocksheep_male, h_maize, h_maize_fao, h_maize_flour, h_maize_meal, h_mangoes, h_meat_beef,
+h_meat_beef_canned, h_meat_beef_fao, h_meat_buffalo, h_meat_camel_fao, h_meat_chicken, h_meat_chicken_broiler,
+h_meat_goat, h_meat_lamb, h_meat_pork, h_meat_sheep, h_milk, h_milk_fao, h_millet, h_millet_fao,
+h_millet_flour, h_oil, h_oil_fao, h_okra, h_onions, h_onions_fao, h_oranges, h_pasta, h_peppers, h_plantains,
+h_plantains_fao, h_potatoes, h_potatoes_fao, h_pulses, h_pumpkin, h_rice, h_rice_fao, h_rice_various, h_salt,
+h_sesame, h_shrimps, h_sorghum, h_sorghum_fao, h_sorghum_food_aid, h_sugar, h_tea, h_teff_fao, h_tomatoes,
+h_tomatoes_fao, h_tomatoes_paste, h_watermelons, h_wheat, h_wheat_fao, h_wheat_flour, h_wheat_flour_fao,
+h_wheat_flour_low_price_fao, h_yam, h_yogurt, h_food_price_index
+```
+
+**`l_*` columns**
+
+```
+l_apples, l_bananas, l_beans, l_beans_fao, l_bread, l_bread_fao, l_butter, l_cabbage, l_carrots, l_cassava,
+l_cassava_fao, l_cassava_flour, l_cassava_flour_fao, l_cassava_leaves, l_cassava_meal, l_cheese, l_chickpeas,
+l_chili, l_cocoa, l_cocoyam_fao, l_coffee_instant, l_couscous, l_couscous_fao, l_cowpeas, l_cucumbers,
+l_dates, l_eggplants, l_eggs, l_fish, l_fish_barbel_sole, l_fish_catfish, l_fish_goldstripe_sardinella,
+l_fish_mackerel, l_fish_mullet_catfish, l_fish_salted, l_fish_sardine_canned, l_fish_smoked, l_fish_tilapia,
+l_fish_tuna_canned, l_fonio, l_gari_fao, l_garlic, l_groundnuts, l_groundnuts_paste, l_honey, l_lemons,
+l_lentils, l_lettuce, l_livestock_camel_fao, l_livestock_goat, l_livestock_goat_fao, l_livestock_goat_s_fao,
+l_livestock_sheep, l_livestockgoat_castrated_male, l_livestockgoat_male, l_livestocksheep_castrated_male,
+l_livestocksheep_male, l_maize, l_maize_fao, l_maize_flour, l_maize_meal, l_mangoes, l_meat_beef,
+l_meat_beef_canned, l_meat_beef_fao, l_meat_buffalo, l_meat_camel_fao, l_meat_chicken, l_meat_chicken_broiler,
+l_meat_goat, l_meat_lamb, l_meat_pork, l_meat_sheep, l_milk, l_milk_fao, l_millet, l_millet_fao,
+l_millet_flour, l_oil, l_oil_fao, l_okra, l_onions, l_onions_fao, l_oranges, l_pasta, l_peppers, l_plantains,
+l_plantains_fao, l_potatoes, l_potatoes_fao, l_pulses, l_pumpkin, l_rice, l_rice_fao, l_rice_various, l_salt,
+l_sesame, l_shrimps, l_sorghum, l_sorghum_fao, l_sorghum_food_aid, l_sugar, l_tea, l_teff_fao, l_tomatoes,
+l_tomatoes_fao, l_tomatoes_paste, l_watermelons, l_wheat, l_wheat_fao, l_wheat_flour, l_wheat_flour_fao,
+l_wheat_flour_low_price_fao, l_yam, l_yogurt, l_food_price_index
+```
+
+**`c_*` columns**
+
+```
+c_apples, c_bananas, c_beans, c_beans_fao, c_bread, c_bread_fao, c_butter, c_cabbage, c_carrots, c_cassava,
+c_cassava_fao, c_cassava_flour, c_cassava_flour_fao, c_cassava_leaves, c_cassava_meal, c_cheese, c_chickpeas,
+c_chili, c_cocoa, c_cocoyam_fao, c_coffee_instant, c_couscous, c_couscous_fao, c_cowpeas, c_cucumbers,
+c_dates, c_eggplants, c_eggs, c_fish, c_fish_barbel_sole, c_fish_catfish, c_fish_goldstripe_sardinella,
+c_fish_mackerel, c_fish_mullet_catfish, c_fish_salted, c_fish_sardine_canned, c_fish_smoked, c_fish_tilapia,
+c_fish_tuna_canned, c_fonio, c_gari_fao, c_garlic, c_groundnuts, c_groundnuts_paste, c_honey, c_lemons,
+c_lentils, c_lettuce, c_livestock_camel_fao, c_livestock_goat, c_livestock_goat_fao, c_livestock_goat_s_fao,
+c_livestock_sheep, c_livestockgoat_castrated_male, c_livestockgoat_male, c_livestocksheep_castrated_male,
+c_livestocksheep_male, c_maize, c_maize_fao, c_maize_flour, c_maize_meal, c_mangoes, c_meat_beef,
+c_meat_beef_canned, c_meat_beef_fao, c_meat_buffalo, c_meat_camel_fao, c_meat_chicken, c_meat_chicken_broiler,
+c_meat_goat, c_meat_lamb, c_meat_pork, c_meat_sheep, c_milk, c_milk_fao, c_millet, c_millet_fao,
+c_millet_flour, c_oil, c_oil_fao, c_okra, c_onions, c_onions_fao, c_oranges, c_pasta, c_peppers, c_plantains,
+c_plantains_fao, c_potatoes, c_potatoes_fao, c_pulses, c_pumpkin, c_rice, c_rice_fao, c_rice_various, c_salt,
+c_sesame, c_shrimps, c_sorghum, c_sorghum_fao, c_sorghum_food_aid, c_sugar, c_tea, c_teff_fao, c_tomatoes,
+c_tomatoes_fao, c_tomatoes_paste, c_watermelons, c_wheat, c_wheat_fao, c_wheat_flour, c_wheat_flour_fao,
+c_wheat_flour_low_price_fao, c_yam, c_yogurt, c_food_price_index
+```
+
+**`inflation_*` columns**
+
+```
+inflation_apples, inflation_bananas, inflation_beans, inflation_beans_fao, inflation_bread,
+inflation_bread_fao, inflation_butter, inflation_cabbage, inflation_carrots, inflation_cassava,
+inflation_cassava_fao, inflation_cassava_flour, inflation_cassava_flour_fao, inflation_cassava_leaves,
+inflation_cassava_meal, inflation_cheese, inflation_chickpeas, inflation_chili, inflation_cocoa,
+inflation_cocoyam_fao, inflation_coffee_instant, inflation_couscous, inflation_couscous_fao,
+inflation_cowpeas, inflation_cucumbers, inflation_dates, inflation_eggplants, inflation_eggs, inflation_fish,
+inflation_fish_barbel_sole, inflation_fish_catfish, inflation_fish_goldstripe_sardinella,
+inflation_fish_mackerel, inflation_fish_mullet_catfish, inflation_fish_salted, inflation_fish_sardine_canned,
+inflation_fish_smoked, inflation_fish_tilapia, inflation_fish_tuna_canned, inflation_fonio,
+inflation_gari_fao, inflation_garlic, inflation_groundnuts, inflation_groundnuts_paste, inflation_honey,
+inflation_lemons, inflation_lentils, inflation_lettuce, inflation_livestock_camel_fao,
+inflation_livestock_goat, inflation_livestock_goat_fao, inflation_livestock_goat_s_fao,
+inflation_livestock_sheep, inflation_livestockgoat_castrated_male, inflation_livestockgoat_male,
+inflation_livestocksheep_castrated_male, inflation_livestocksheep_male, inflation_maize, inflation_maize_fao,
+inflation_maize_flour, inflation_maize_meal, inflation_mangoes, inflation_meat_beef,
+inflation_meat_beef_canned, inflation_meat_beef_fao, inflation_meat_buffalo, inflation_meat_camel_fao,
+inflation_meat_chicken, inflation_meat_chicken_broiler, inflation_meat_goat, inflation_meat_lamb,
+inflation_meat_pork, inflation_meat_sheep, inflation_milk, inflation_milk_fao, inflation_millet,
+inflation_millet_fao, inflation_millet_flour, inflation_oil, inflation_oil_fao, inflation_okra,
+inflation_onions, inflation_onions_fao, inflation_oranges, inflation_pasta, inflation_peppers,
+inflation_plantains, inflation_plantains_fao, inflation_potatoes, inflation_potatoes_fao, inflation_pulses,
+inflation_pumpkin, inflation_rice, inflation_rice_fao, inflation_rice_various, inflation_salt,
+inflation_sesame, inflation_shrimps, inflation_sorghum, inflation_sorghum_fao, inflation_sorghum_food_aid,
+inflation_sugar, inflation_tea, inflation_teff_fao, inflation_tomatoes, inflation_tomatoes_fao,
+inflation_tomatoes_paste, inflation_watermelons, inflation_wheat, inflation_wheat_fao, inflation_wheat_flour,
+inflation_wheat_flour_fao, inflation_wheat_flour_low_price_fao, inflation_yam, inflation_yogurt,
+inflation_food_price_index
+```
+
+**`trust_*` columns**
+
+```
+trust_apples, trust_bananas, trust_beans, trust_beans_fao, trust_bread, trust_bread_fao, trust_butter,
+trust_cabbage, trust_carrots, trust_cassava, trust_cassava_fao, trust_cassava_flour, trust_cassava_flour_fao,
+trust_cassava_leaves, trust_cassava_meal, trust_cheese, trust_chickpeas, trust_chili, trust_cocoa,
+trust_cocoyam_fao, trust_coffee_instant, trust_couscous, trust_couscous_fao, trust_cowpeas, trust_cucumbers,
+trust_dates, trust_eggplants, trust_eggs, trust_fish, trust_fish_barbel_sole, trust_fish_catfish,
+trust_fish_goldstripe_sardinella, trust_fish_mackerel, trust_fish_mullet_catfish, trust_fish_salted,
+trust_fish_sardine_canned, trust_fish_smoked, trust_fish_tilapia, trust_fish_tuna_canned, trust_fonio,
+trust_gari_fao, trust_garlic, trust_groundnuts, trust_groundnuts_paste, trust_honey, trust_lemons,
+trust_lentils, trust_lettuce, trust_livestock_camel_fao, trust_livestock_goat, trust_livestock_goat_fao,
+trust_livestock_goat_s_fao, trust_livestock_sheep, trust_livestockgoat_castrated_male,
+trust_livestockgoat_male, trust_livestocksheep_castrated_male, trust_livestocksheep_male, trust_maize,
+trust_maize_fao, trust_maize_flour, trust_maize_meal, trust_mangoes, trust_meat_beef, trust_meat_beef_canned,
+trust_meat_beef_fao, trust_meat_buffalo, trust_meat_camel_fao, trust_meat_chicken, trust_meat_chicken_broiler,
+trust_meat_goat, trust_meat_lamb, trust_meat_pork, trust_meat_sheep, trust_milk, trust_milk_fao, trust_millet,
+trust_millet_fao, trust_millet_flour, trust_oil, trust_oil_fao, trust_okra, trust_onions, trust_onions_fao,
+trust_oranges, trust_pasta, trust_peppers, trust_plantains, trust_plantains_fao, trust_potatoes,
+trust_potatoes_fao, trust_pulses, trust_pumpkin, trust_rice, trust_rice_fao, trust_rice_various, trust_salt,
+trust_sesame, trust_shrimps, trust_sorghum, trust_sorghum_fao, trust_sorghum_food_aid, trust_sugar, trust_tea,
+trust_teff_fao, trust_tomatoes, trust_tomatoes_fao, trust_tomatoes_paste, trust_watermelons, trust_wheat,
+trust_wheat_fao, trust_wheat_flour, trust_wheat_flour_fao, trust_wheat_flour_low_price_fao, trust_yam,
+trust_yogurt, trust_food_price_index
+```
+
+## Supporting tables
+
+| Table | Primary key | Columns (type) |
+|---|---|---|
+| `audit.pipeline_runs` | `run_id`, `layer` | run_id, source_name, layer, load_type, parameter_processed (string); start_time, end_time (timestamp); records_read, records_inserted, records_updated, records_rejected (bigint); status, error_message (string) |
+| `audit.pipeline_execution_logs` | `run_id` | run_id, layer, load_type, parameter_processed, source_file, status, error_message (string); start_time, end_time (timestamp); rows_inserted, rows_updated, rows_processed (bigint) |
+| `rejects.silver_food_price_rejects_v2` | `ISO3`, `geo_id`, `price_date`, `reject_run_id` | ISO3, country, geo_id, reject_reason, reject_run_id (string); price_date (date); lat, lon (double); year, month (int); rejected_at, load_timestamp (timestamp) |
+| `rejects.bronze_schema_rejects` | `run_id` | run_id, source_file, reject_reason, source_columns, target_columns (string); detected_at (timestamp) |
+| `rejects.silver_schema_drift_logs` | `run_id`, `column_name`, `drift_type` | run_id, column_name, drift_type, source_type, target_type (string); detected_at (timestamp) |
+| `rejects.silver_type_violations` | `run_id`, `column_name` | run_id, column_name (string); bad_value_count (bigint); load_timestamp (timestamp) |
+
+Silver rejects a row if `ISO3` is not 3 characters, or `country`, `geo_id` or `price_date` is missing, or `lat`/`lon` is missing or out of range, or `month` is outside 1..12. Null price values are kept.
+
+# Run instructions
+
+Run order: **01 (Bronze) -> 03 (Silver)**; 02 is optional. Set the widgets at the top of each notebook:
+
+| Widget | Notebooks | Values |
+|---|---|---|
+| `source_path` | 01 | CSV path, default `/Volumes/workspace/bronze/raw_files/world_bank_food_prices_2011_2026.csv` |
+| `load_type` | 01, 03 | `full`, `incremental`, `backfill` |
+| `start_date`, `end_date` | 01, 03 | `YYYY-MM-DD`; filter `price_date` for incremental and backfill (ignored for `full`) |
+| `batch_id` | 01, 03 | optional |
+
+Run the widgets cell first; the later cells depend on it.
+
+## Full load
+Set `load_type = full` in 01 and 03, then run 01 and 03 top to bottom.
+
+## Incremental load (recent window)
+1. In 01 set `load_type = incremental`, `start_date`/`end_date` to the new months (e.g. `2026-08-01` to `2026-09-30`) and run it. New keys are inserted; existing keys update only if values changed.
+2. In 03 set the same `load_type`, `start_date` and `end_date` and run it. Silver MERGEs that window on the primary key.
+3. Do not run the optional `#cleanup` cell in 03 (it drops Silver, reject and audit tables).
+
+## Backfill (historical range)
+1. In 01 set `load_type = backfill`, `start_date`/`end_date` to the range (e.g. `2015-01-01` to `2015-12-31`) and run it.
+2. Run 03 with the same values.
+3. The MERGE is on the primary key, so a backfill never creates duplicates and is safe to rerun.
+
+## Check the load
+```sql
+SELECT ISO3, geo_id, price_date, COUNT(*) FROM silver.world_bank_food_prices
+GROUP BY ISO3, geo_id, price_date HAVING COUNT(*) > 1;   -- expect 0 rows
+SELECT * FROM audit.pipeline_runs ORDER BY start_time DESC LIMIT 5;
+```
